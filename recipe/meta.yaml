@@ -17,7 +17,7 @@ source:
     # https://github.com/glencoesoftware/zeroc-ice-py-patches/blob/ba13c76d5a6ccc4d88ea68b58c1fa86bab0da7e8/0004-visual-studio-2022-support.patch
     # Ignore the patch name, it's also required for building on OSX
     - 0004-visual-studio-2022-support.patch
-    # Patch for Python 3.13 from https://github.com/zeroc-ice/ice/pull/2910
+    # https://github.com/chris-allan/zeroc-ice-py-patches/blob/python3.13/0005-python-313-support.patch
     - 0005-python-313-support.patch
 
 build:
