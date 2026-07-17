@@ -1,0 +1,14 @@
+diff -Naur zeroc-ice-3.6.5.orig/src/ice/mcpp/system.c zeroc-ice-3.6.5/src/ice/mcpp/system.c
+--- zeroc-ice-3.6.5.orig/src/ice/mcpp/system.c	2019-07-31 19:49:30.000000000 +0000
++++ zeroc-ice-3.6.5/src/ice/mcpp/system.c	2025-02-26 11:50:59.670499036 +0000
+@@ -37,6 +37,10 @@
+  *      2. append the system-dependent routines in this file.
+  */
+ 
++#ifndef _MSC_VER
++#  include <unistd.h> // For readlink()
++#endif
++
+ #include    "system.H"
+ #include    "internal.H"
+ 
