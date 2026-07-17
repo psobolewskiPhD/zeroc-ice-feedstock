@@ -17,9 +17,13 @@ source:
     # https://github.com/glencoesoftware/zeroc-ice-py-patches/blob/ba13c76d5a6ccc4d88ea68b58c1fa86bab0da7e8/0004-visual-studio-2022-support.patch
     # Ignore the patch name, it's also required for building on OSX
     - 0004-visual-studio-2022-support.patch
+    # https://github.com/glencoesoftware/zeroc-ice-py-patches/blob/047e191d222438af1b2379b7cab4d5e3e046b366/0005-python-313-support.patch
+    - 0005-python-313-support.patch
+    # https://github.com/glencoesoftware/zeroc-ice-py-patches/blob/047e191d222438af1b2379b7cab4d5e3e046b366/0006-mcpp-unistd.patch
+    - 0006-mcpp-unistd.patch
 
 build:
-  number: 6
+  number: 7
   entry_points:
     - slice2py=slice2py:main
 
