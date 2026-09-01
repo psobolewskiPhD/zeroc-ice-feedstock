@@ -1,0 +1,94 @@
+diff -Naur zeroc-ice-3.6.5.orig/src/Types.cpp zeroc-ice-3.6.5/src/Types.cpp
+--- zeroc-ice-3.6.5.orig/src/Types.cpp	2019-07-31 19:49:38.000000000 +0000
++++ zeroc-ice-3.6.5/src/Types.cpp	2026-06-25 18:01:48.050416825 +0000
+@@ -338,14 +338,7 @@
+         assert(_sliceInfoType);
+     }
+ 
+-    IcePy::PyObjectHandle args = PyTuple_New(0);
+-    if(!args.get())
+-    {
+-        assert(PyErr_Occurred());
+-        throw AbortMarshaling();
+-    }
+-
+-    PyObjectHandle sd = PyEval_CallObject(_slicedDataType, args.get());
++    PyObjectHandle sd = PyObject_CallObject(_slicedDataType, nullptr);
+     if(!sd.get())
+     {
+         assert(PyErr_Occurred());
+@@ -371,7 +364,7 @@
+     int i = 0;
+     for(vector<Ice::SliceInfoPtr>::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
+     {
+-        PyObjectHandle slice = PyEval_CallObject(_sliceInfoType, args.get());
++        PyObjectHandle slice = PyObject_CallObject(_sliceInfoType, nullptr);
+         if(!slice.get())
+         {
+             assert(PyErr_Occurred());
+@@ -1546,9 +1539,11 @@
+             Py_ssize_t sz = 0;
+             if(p != Py_None)
+             {
+-                const void* buf = 0;
+-                if(PyObject_AsReadBuffer(p, &buf, &sz) == 0)
++                Py_buffer pybuf;
++                if (PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE) == 0)
+                 {
++                    sz = pybuf.len;
++                    PyBuffer_Release(&pybuf);
+                     if(pi->kind == PrimitiveInfo::KindString)
+                     {
+                         PyErr_Format(PyExc_ValueError, STRCAST("expected sequence value"));
+@@ -1557,7 +1552,7 @@
+                 }
+                 else
+                 {
+-                    PyErr_Clear(); // PyObject_AsReadBuffer sets an exception on failure.
++                    PyErr_Clear(); // PyObject_GetBuffer sets an exception on failure.
+ 
+                     PyObjectHandle fs;
+                     if(pi)
+@@ -1772,11 +1767,13 @@
+     // For most types, we accept an object that implements the buffer protocol
+     // (this includes the array.array type).
+     //
+-    const void* buf = 0;
++    Py_buffer pybuf;
+     Py_ssize_t sz;
+-    if(PyObject_AsReadBuffer(p, &buf, &sz) == 0)
++    if (PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE | PyBUF_FORMAT) == 0)
+     {
+-        const Ice::Byte* b = reinterpret_cast<const Ice::Byte*>(buf);
++        const Ice::Byte* b = reinterpret_cast<const Ice::Byte*>(pybuf.buf);
++        sz = pybuf.len;
++        PyBuffer_Release(&pybuf);
+         switch(pi->kind)
+         {
+         case PrimitiveInfo::KindBool:
+@@ -1824,7 +1821,7 @@
+     }
+     else
+     {
+-        PyErr_Clear(); // PyObject_AsReadBuffer sets an exception on failure.
++        PyErr_Clear(); // PyObject_GetBuffer sets an exception on failure.
+     }
+ 
+     PyObjectHandle fs = getSequence(pi, p);
+diff -Naur zeroc-ice-3.6.5.orig/src/Util.cpp zeroc-ice-3.6.5/src/Util.cpp
+--- zeroc-ice-3.6.5.orig/src/Util.cpp	2019-07-31 19:49:38.000000000 +0000
++++ zeroc-ice-3.6.5/src/Util.cpp	2026-06-25 17:58:07.995637508 +0000
+@@ -683,12 +683,7 @@
+ IcePy::createExceptionInstance(PyObject* type)
+ {
+     assert(PyExceptionClass_Check(type));
+-    IcePy::PyObjectHandle args = PyTuple_New(0);
+-    if(!args.get())
+-    {
+-        return 0;
+-    }
+-    return PyEval_CallObject(type, args.get());
++    return PyObject_CallObject(type, nullptr);
+ }
+ 
+ static void
