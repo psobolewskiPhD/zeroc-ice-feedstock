@@ -23,7 +23,7 @@ source:
     - 0006-mcpp-unistd.patch
 
 build:
-  number: 7
+  number: 8
   entry_points:
     - slice2py=slice2py:main
 
