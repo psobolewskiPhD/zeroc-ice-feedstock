@@ -3,6 +3,11 @@ export CPP_INCLUDE_PATH=$PREFIX/include
 export CXX_INCLUDE_PATH=$PREFIX/include
 export CPLUS_INCLUDE_PATH=$PREFIX/include
 export LD_LIBRARY_PATH=$PREFIX/lib
+# The vendored mcpp sources (src/ice/mcpp) are pre-C23 C: main.c calls
+# mb_init(TRUE) although mb_init() takes no arguments, and system.c uses
+# `true:`/`false:` as goto labels. GCC >= 15 defaults to -std=gnu23, where both
+# are hard errors, so keep the C sources on the older standard.
+export CFLAGS="${CFLAGS} -std=gnu17"
 if [ "$OSX_ARCH" = arm64 ]; then
   # https://github.com/zeroc-ice/ice-packaging/blob/v3.6.5/ice/pypi/setup.py#L49-L51
   export ARCHFLAGS="-arch arm64"
